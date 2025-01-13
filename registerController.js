@@ -1,5 +1,4 @@
 const { addToQueue } = require('./queue');
-const { sendEmail } = require('./emailService');
 
 let users = [];
 
@@ -23,11 +22,12 @@ async function registerUser(req, res) {
 
   console.log(`User registered: ${username} with email: ${email}`);
 
-  addToQueue(async () => {
-    const subject = `Welcome ${username}`;
-    const text = `Hello ${username},\n\nThank you for registering with us.`;
-    await sendEmail(email, subject, text);
-  });
+  const emailData = {
+    toEmail: email,
+    subject: `Welcome ${username}`,
+    text: `Hello ${username},\n\nThank you for registering with us.`
+  }
+  addToQueue(emailData);
 
   res.status(201).json({ message: 'User registered successfully.' });
 }

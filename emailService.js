@@ -1,3 +1,4 @@
+const { parentPort, workerData } = require('worker_threads');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
@@ -8,7 +9,7 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-async function sendEmail(toEmail, subject, text) {
+async function sendEmail({toEmail, subject, text}) {
     const mailOptions = {
         from: process.env.EMAIL_USER,
         to: toEmail,
@@ -25,4 +26,11 @@ async function sendEmail(toEmail, subject, text) {
     }
 }
 
-module.exports = { sendEmail };
+(async () => {
+    try {
+        const result = await sendEmail(workerData.task);
+        parentPort.postMessage(result);
+    } catch (error) {
+        parentPort.postMessage(`Error: ${error.message}`);
+    }
+})();
